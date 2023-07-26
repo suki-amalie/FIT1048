@@ -1,0 +1,3 @@
+Wizard; Healer; Thief; Ranger; Fighter; Barbarian
+Strength:; Endurance:; Dexterity:; Intelligence:; Wisdom:; Charisma:
+233445;233545;546653;766642;554300;632422
