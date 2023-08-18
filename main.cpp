@@ -1,66 +1,42 @@
 /**************************************************
   Project: The Amazing RPG Character Generator
-   Author: Jash Nguyen
+   Author: Thao Nguyen
   Purpose: Application File
-
+  Task Oriented Project for Assigment 1
  **************************************************/
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <ctime>
 
-using namespace std;
-
-// Declare global variables
-const string divider(40, '~');
-string line;
-vector<string> tempList;
-vector<string> charTypes;
-vector<string> charAttributes;
-vector<string> charAttMins;
-ifstream myFile;
-string lastGeneratedCharacter;
-
-// Declare functions
-void displayHeader();
-void runMenu();
-void DisplayText();
-vector<string> createLists(string yourFileName);
-void generateCharacter();
-void saveCharacterToFile();
-void loadSavedCharacter();
+# include "main.h"
 
 int main() {
     int yourChoice;
-
+    // generate a new seed
+    srand(unsigned (time(NULL)));
     do {
+        // display menu options to user
         runMenu();
         cout << "Which option would you like (0-5): ";
         cin >> yourChoice;
         switch (yourChoice) {
-            case 0: cout << "Thank you for testing this application \n"; break;
-            case 1: DisplayText(); break;
+            case 0: cout << "Thank you for testing this application.\n";clearScreen();break;
+            case 1: DisplayText(); clearScreen(); break;
             case 2: {
+                /* Read line from 3 different text files, split line
+                 * by semicolon and store them into 3 separate variables
+                 * as string vector */
                 charTypes = createLists("charTypes.txt");
                 charAttributes = createLists("charAttributes.txt");
                 charAttMins = createLists("charAttMins.txt");
-                system("pause");
-                system("cls");
+                clearScreen();
                 break;
                 }
-            case 3: generateCharacter(); break;
-            case 4: saveCharacterToFile(); break;
-            case 5: loadSavedCharacter(); break;
-            default: cout << "Invalid Input \n"; break;
+            case 3: generateCharacter(); clearScreen(); break;
+            case 4: saveCharacterToFile(); clearScreen(); break;
+            case 5: loadSavedCharacter(); clearScreen(); break;
+            default: cout << "Invalid Input\n"; clearScreen(); break;
         }
 
-    }
-    while (yourChoice != 0);
-    system("pause");
-    system("cls");
+    } while (yourChoice != 0);
     return 0;
 }
 
@@ -69,16 +45,26 @@ int main() {
  *******************************************************************/
 
 void displayHeader()
-/* Display game's title */
+//Display game's title
 {
     cout << divider << endl;
     cout << "The Amazing RPG Character Generator" << endl;
     cout << divider << endl;
 }
 
+void clearScreen(){
+    // Window
+    system("pause");
+    system("cls");
+    // MAC or Linux
+    /*
+     system("read -n 1 -s -p "Press any key to continue"");
+     system("clear");
+     */
+}
 
 void runMenu()
-/* Display menu options to user*/
+//Display menu options to user
 {
     displayHeader();
     cout << "[0] End Testing the Program" << endl;
@@ -92,62 +78,50 @@ void runMenu()
 }
 
 void DisplayText()
-/* read data from text files and display data */
+/* read data from text files and display data*/
 {
     system("cls");
     displayHeader();
 
-    myFile.open("RPGAbout.txt");
-    if (myFile.is_open())
+    FileToRead.open("RPGAbout.txt");
+    if (FileToRead.is_open())
     {
-        while (getline(myFile, line))
+        while (getline(FileToRead, line))
         {
             cout << line << '\n';
         }
-        myFile.close();
+        FileToRead.close();
     }
     else cout << "Unable to open file" << endl;
-    system("pause");
-    system("cls");
-
 }
 
-string removeSpace(string str) {
-    string output;
-    for (int i = 0; i < str.size(); i++) {
-        if (str[i] != ' ') {
-            output += str[i];
-        }
-    }
-    return output;
-}
 
-vector<string> splitByComma(string lineToSplit) {
-    /* split string of text by comma and remove
-     white space if needed, return back the elements
-     after splitting as a string vector */
+vector<string> splitLine(string lineToSplit) {
+    /* split line of string by semicolon,
+     * return back the elements after splitting
+     * as a string vector */
     vector<string> cache;
     stringstream ss(lineToSplit);
     while (ss.good()) {
         string substr;
         getline(ss, substr, ';');
-        cache.push_back(removeSpace(substr));
+        cache.push_back(substr);
     }
     return cache;
 }
 
 
 vector<string> createLists(string yourFileName) {
-    /* Read data from text file and extract lines
-     * into a vector string */
+    /* Read line from text file, split words in line
+     * by semicolon and store them into a vector string */
     string message = "Data loading from " + yourFileName;
-    myFile.open(yourFileName);
-    if (myFile.is_open())
+    FileToRead.open(yourFileName);
+    if (FileToRead.is_open())
     {
-        getline(myFile, line);
-        tempList = splitByComma(line);
+        getline(FileToRead, line);
+        tempList = splitLine(line);
         cout << message << endl;
-        myFile.close();
+        FileToRead.close();
     }
     else {
         cout << "Unable to open file" << endl;
@@ -156,58 +130,66 @@ vector<string> createLists(string yourFileName) {
 }
 
 void generateCharacter() {
-    srand(time(NULL));
     string charType, charAttMin;
+
+    // generate a random index to pick the character type
     int index = rand() % charTypes.size();
 
     charType = charTypes[index];
+    // access the corresponding character's minimum attribute
     charAttMin = charAttMins[index];
-    lastGeneratedCharacter = charType + "\n";
-    lastGeneratedCharacter += divider + "\n";
-    for(int i = 0; i < charAttributes.size(); i ++) {
-        int increment = rand()%5 + 1;
-        int attMin = charAttMin[i] - '0';
-        lastGeneratedCharacter += charAttributes[i] + " " + to_string(attMin + increment) + "\n";
-    }
-    lastGeneratedCharacter += '\n';
-    cout << lastGeneratedCharacter;
-    system("pause");
-    system("cls");
 
+    // store description about the new generated character
+    lastGeneratedCharacter = "\n\t" + charType + "\n";
+    lastGeneratedCharacter += "\t" + smalldivider + "\n";
+
+    for(int i = 0; i < charAttributes.size(); i ++) {
+        // add a random number from 0-5 to character's attribute
+        int increment = rand()%6;
+        // convert character's minimum attribute from char type to integer
+        int attMin = charAttMin[i] - '0';
+        lastGeneratedCharacter += "\t" + charAttributes[i] + " " + to_string(attMin + increment) + "\n";
+    }
+    // display character's stats to user
+    cout <<  lastGeneratedCharacter << endl;
 }
 
 void saveCharacterToFile() {
+    // take user's input and save the generated character to text file
     char response;
+    // display the last generated character
     cout << lastGeneratedCharacter << "\n";
     cout << "Do you want to save this character? (y/n) ";
     cin >> response;
-    if (response == 'y') {
+    if (tolower(response) == 'y') {
         ofstream outputFile;
-        outputFile.open("savedCharacters.txt",ofstream::app);
-        outputFile << lastGeneratedCharacter;
-        outputFile.close();
-        cout << "This character is now saved.\n";
+        // append the last generated character to file
+        outputFile.open("savedCharacters.txt",ios::app);
+        if (outputFile.is_open()){
+            outputFile << lastGeneratedCharacter;
+            outputFile.close();
+            cout << "This character is now saved.\n";
+        } else
+        {
+            cout << "Unable to save character to file.\n";
+        }
     }
-    system("pause");
-    system("cls");
-
 }
 
 void loadSavedCharacter() {
-    ifstream readFile;
-    readFile.open("savedCharacters.txt");
-    if (readFile.is_open())
+    // load all the saved generated character to screen
+    FileToRead.open("savedCharacters.txt");
+    if (FileToRead.is_open())
     {
-        while ( getline (readFile,line) )
+        while ( getline (FileToRead,line) )
         {
-            cout << line << '\n';
+            cout << line << endl;
         }
-        readFile.close();
+        FileToRead.close();
     }
 
-    else cout << "Unable to open file";
-    system("pause");
-    system("cls");
-
-
+    else {
+        cout << "Unable to open file";
+    }
+    cout << "\n";
 }
